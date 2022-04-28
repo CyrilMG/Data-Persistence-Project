@@ -19,6 +19,11 @@ public class MenuUIHandler : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    public void LoadHighScore()
+    {
+        SceneManager.LoadScene(2);
+    }
+
     public void Exit()
     {
 #if UNITY_EDITOR

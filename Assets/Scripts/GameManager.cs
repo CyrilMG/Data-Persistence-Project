@@ -23,9 +23,15 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(MainManager.Instance != null)
+        if(MainManager.Instance != null && MainManager.Instance.bestScores.Count > 0)
         {
-            BestScoreText.text = "Best Score : " + MainManager.Instance.bestScorePlayerName + " : " + MainManager.Instance.bestScore;
+            
+            BestScoreText.text = "Best Score : " + MainManager.Instance.bestScores[0].bestScorePlayerName + 
+                " : " + MainManager.Instance.bestScores[0].bestScore;
+        }
+        else
+        {
+            BestScoreText.text = "No High Score";
         }
 
         const float step = 0.6f;

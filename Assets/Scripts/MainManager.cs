@@ -13,6 +13,8 @@ public class MainManager : MonoBehaviour
     public string bestScorePlayerName;
     public int bestScore;
 
+    public List<HighScore> bestScores = new List<HighScore>();
+
     private void Awake()
     {
         if(Instance != null)
@@ -31,23 +33,60 @@ public class MainManager : MonoBehaviour
     [System.Serializable]
     class PersistantData
     {
+        public List<HighScore> highScores;
+    }
+
+    [System.Serializable]
+    public class HighScore
+    {
         public string bestScorePlayerName;
         public int bestScore;
     }
 
     public void SaveData(int newScore)
     {
-        if (newScore > bestScore)
+        int rank = -1;
+        if (bestScores.Count == 0)
         {
+            rank = 0;
+        }
+        else
+        {
+            for (int i = 0; i < bestScores.Count; i++)
+            {
+                if (newScore > bestScores[i].bestScore)
+                {
+                    rank = i;
+                    break;
+                }
+            }
+        }
+
+        if (rank == -1 && bestScores.Count < 10)
+            rank = bestScores.Count;
+
+        if(rank != -1)
+        {
+            HighScore highScore = new HighScore();
+            highScore.bestScore = newScore;
+            highScore.bestScorePlayerName = playerName;
+
+            bestScores.Insert(rank, highScore);
+
+            if (bestScores.Count > 10)
+                bestScores.RemoveAt(10);
+
             PersistantData data = new PersistantData();
-            data.bestScorePlayerName = playerName;
-            data.bestScore = newScore;
+            data.highScores = bestScores;
+
 
             string json = JsonUtility.ToJson(data);
 
             File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+
+            LoadData();
         }
-        LoadData();
+
     }
 
     public void LoadData()
@@ -56,10 +95,8 @@ public class MainManager : MonoBehaviour
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            PersistantData data = JsonUtility.FromJson<PersistantData>(json);
+            bestScores = JsonUtility.FromJson<PersistantData>(json).highScores;
 
-            bestScorePlayerName = data.bestScorePlayerName;
-            bestScore = data.bestScore;
         }
     }
 
