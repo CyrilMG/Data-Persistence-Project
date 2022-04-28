@@ -15,6 +15,8 @@ public class MainManager : MonoBehaviour
 
     public List<HighScore> bestScores = new List<HighScore>();
 
+    public Settings settings;
+
     private void Awake()
     {
         if(Instance != null)
@@ -27,6 +29,8 @@ public class MainManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        SetInitialSettings();
+
         LoadData();
     }
 
@@ -34,6 +38,7 @@ public class MainManager : MonoBehaviour
     class PersistantData
     {
         public List<HighScore> highScores;
+        public Settings settings;
     }
 
     [System.Serializable]
@@ -43,8 +48,15 @@ public class MainManager : MonoBehaviour
         public int bestScore;
     }
 
-    public void SaveData(int newScore)
+    [System.Serializable]
+    public class Settings
     {
+        public int lineCount;
+    }
+
+    public void AddNewScore(int newScore)
+    {
+
         int rank = -1;
         if (bestScores.Count == 0)
         {
@@ -65,7 +77,7 @@ public class MainManager : MonoBehaviour
         if (rank == -1 && bestScores.Count < 10)
             rank = bestScores.Count;
 
-        if(rank != -1)
+        if (rank != -1)
         {
             HighScore highScore = new HighScore();
             highScore.bestScore = newScore;
@@ -76,17 +88,19 @@ public class MainManager : MonoBehaviour
             if (bestScores.Count > 10)
                 bestScores.RemoveAt(10);
 
-            PersistantData data = new PersistantData();
-            data.highScores = bestScores;
-
-
-            string json = JsonUtility.ToJson(data);
-
-            File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-
-            LoadData();
+            SaveData();
         }
+    }
 
+    public void SaveData()
+    {
+        PersistantData data = new PersistantData();
+        data.highScores = bestScores;
+        data.settings = settings;
+
+        string json = JsonUtility.ToJson(data);
+
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
     public void LoadData()
@@ -95,9 +109,18 @@ public class MainManager : MonoBehaviour
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            bestScores = JsonUtility.FromJson<PersistantData>(json).highScores;
+            PersistantData data = JsonUtility.FromJson<PersistantData>(json);
+
+            bestScores = data.highScores;
+            settings = data.settings;
 
         }
     }
 
+    Settings SetInitialSettings()
+    {
+        Settings settings = new Settings();
+        settings.lineCount = 6;
+        return settings;
+    }
 }

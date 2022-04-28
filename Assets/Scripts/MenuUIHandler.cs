@@ -16,12 +16,17 @@ public class MenuUIHandler : MonoBehaviour
     {
         MainManager.Instance.playerName = playerNameText.text;
 
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene("main");
     }
 
     public void LoadHighScore()
     {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene("HighScore");
+    }
+
+    public void LoadSettings()
+    {
+        SceneManager.LoadScene("Settings");
     }
 
     public void Exit()
